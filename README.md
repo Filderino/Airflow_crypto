@@ -43,3 +43,6 @@ graph LR
     style B fill:#ccf,stroke:#333
     style C fill:#9cf,stroke:#333
 ```
+Результат заполнения DWH
+<img width="1919" height="1075" alt="DWH_Check" src="https://github.com/user-attachments/assets/395195de-cec9-4960-8b3a-402fa88d1f10" />
+
