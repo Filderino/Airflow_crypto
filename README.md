@@ -33,7 +33,7 @@ CREATE TABLE crypto_prices (
     loaded_at TIMESTAMP NOT NULL
 );
 ```
-##Стек проекта
+## Стек проекта
 ```mermaid
 graph LR
     A[External Crypto APIs] --> B[Apache Airflow];
