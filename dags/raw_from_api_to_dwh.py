@@ -5,12 +5,11 @@ from sqlalchemy import create_engine
 import requests
 import pandas as pd
 
-
 @dag(
     start_date=datetime(2025, 12, 1),
-    schedule_interval='0 */2 * * *',  # Каждые 2 часа в 0 минут
+    schedule_interval='0 */2 * * *',  # Каждые 2 часа
     catchup=False,
-    tags=['bybit', 'crypto', 'dwh'],
+    tags=['bybit', 'crypto', 'dwh']
 )
 
 def bybit_to_postgres():
@@ -36,7 +35,7 @@ def bybit_to_postgres():
         current_time = datetime.now()
         transformed_data = []
 
-        for item in data["result"]["list"]:
+        for item in data["result"]["list"]: # Парсим JSON и берем что нам нужно
             transformed_data.append({
                 'coin': item["symbol"],
                 'last_price': float(item["lastPrice"]),
@@ -55,7 +54,7 @@ def bybit_to_postgres():
         """
         engine = create_engine(
             "postgresql://postgres:postgres@postgres_dwh:5432/postgres"
-        )
+        ) # Подключаемся к DWH
         df = pd.DataFrame(transformed_data)
 
         df.to_sql(
@@ -63,10 +62,11 @@ def bybit_to_postgres():
             con=engine,
             if_exists='append',
             index=False
-        )
+        ) # Добавляем данные в DWH
 
+    # Создается оркестрация
     raw_data = extract_from_api()
     transformed = transform_from_api(raw_data)
     load_to_dwh(transformed)
 
-dag = bybit_to_postgres()
+dag = bybit_to_postgres() # создаем DAG
