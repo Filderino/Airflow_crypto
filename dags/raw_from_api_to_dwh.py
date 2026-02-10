@@ -4,12 +4,37 @@ from airflow.providers.postgres.hooks.postgres import PostgresHook
 from sqlalchemy import create_engine
 import requests
 import pandas as pd
+import keys
+
+def send_telegram_alert(context):
+    """Отправка уведомления в Telegram при ошибке"""
+    token = keys.telegram_token
+    chat_id = keys.chat_id
+
+    task_instance = context.get('task_instance')
+    dag_id = context.get('dag').dag_id
+    task_id = task_instance.task_id
+    execution_date = context.get('execution_date')
+
+    message = f"""
+ОШИБКА В AIRFLOW DAG
+DAG: {dag_id}
+Task: {task_id}
+Время: {execution_date}
+Лог: {task_instance.log_url}
+    """
+
+    url = f"https://api.telegram.org/bot{token}/sendMessage"
+    requests.post(url, data={"chat_id": chat_id, "text": message})
 
 @dag(
     start_date=datetime(2025, 12, 1),
     schedule_interval='0 */2 * * *',  # Каждые 2 часа
     catchup=False,
-    tags=['bybit', 'crypto', 'dwh']
+    tags=['bybit', 'crypto', 'dwh'],
+    default_args={
+        'on_failure_callback': send_telegram_alert
+    }
 )
 
 def bybit_to_postgres():
